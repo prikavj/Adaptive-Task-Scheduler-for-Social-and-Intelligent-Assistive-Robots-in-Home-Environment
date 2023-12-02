@@ -1,0 +1,69 @@
+{
+    "commands": [
+        {
+            "command": "John slipped from the staircase and hurt his head. Please call 911!",
+            "priority": 1,
+            "status": "completed",
+            "total_execution_time_needed": 33,
+            "execution_time_remaining": 0,
+            "start_time": "none",
+            "happy": 0.0648,
+            "neutral": 0.0413,
+            "sad": 0.8938,
+            "health_emergency_score": 0.5057,
+            "health_sensitivity_score": 0.2938
+        },
+        {
+            "command": "It's time for my diabetes medicine, can you please bring it to me.",
+            "priority": 0.7257610000000001,
+            "status": "completed",
+            "total_execution_time_needed": 36,
+            "execution_time_remaining": 0,
+            "start_time": "none",
+            "happy": 0.036199999999999996,
+            "neutral": 0.6096,
+            "sad": 0.3542,
+            "health_emergency_score": 0.1911,
+            "health_sensitivity_score": 0.7427
+        },
+        {
+            "command": "I am so happy today! 😊😊😂",
+            "priority": 0.677289,
+            "status": "completed",
+            "total_execution_time_needed": 33,
+            "execution_time_remaining": 0,
+            "start_time": "none",
+            "happy": 0.9717,
+            "neutral": 0.0113,
+            "sad": 0.0168,
+            "health_emergency_score": 0.0274,
+            "health_sensitivity_score": 0.1033
+        },
+        {
+            "command": "Hey, can I get a coffee? 😊😊😊",
+            "priority": 0.614267,
+            "status": "running",
+            "total_execution_time_needed": 37,
+            "execution_time_remaining": 21,
+            "start_time": "none",
+            "happy": 0.8203,
+            "neutral": 0.0813,
+            "sad": 0.09839999999999999,
+            "health_emergency_score": 0.0177,
+            "health_sensitivity_score": 0.0441
+        },
+        {
+            "command": "Where are my keys!!! Get them to me fast. 😡😡😡😡",
+            "priority": 0.24627800000000002,
+            "status": "waiting",
+            "total_execution_time_needed": 43,
+            "execution_time_remaining": 6,
+            "start_time": "none",
+            "happy": 0.0693,
+            "neutral": 0.0726,
+            "sad": 0.8581,
+            "health_emergency_score": 0.2211,
+            "health_sensitivity_score": 0.1214
+        }
+    ]
+}

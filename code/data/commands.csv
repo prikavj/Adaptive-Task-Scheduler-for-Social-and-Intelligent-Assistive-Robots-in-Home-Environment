@@ -1,0 +1,14 @@
+text,timestamp,happy,neutral,sad,keywords,time of the day
+I want my evening cofee.,2023-11-30 18:53:44,0.011,0.1713,0.5568,"['evening', 'cofee']",evening
+Bring me my mobile!,2023-11-30 18:54:10,0.2246,0.4755,0.1197,['mobile'],evening
+Save Amit!,2023-11-30 11:52:08,0.0288,0.4394,0.2555,[],morning
+David has a heart attack! Call 911!,2023-11-30 12:03:20,0.1294,0.0448,0.448,"['heart', 'attack']",afternoon
+David has a heart attack! Call 911!,2023-11-30 12:06:14,0.1344,0.0448,0.8208,"['heart', 'attack']",afternoon
+Get me my coffee 😡,2023-11-30 12:06:30,0.0161,0.4815,0.5025,['coffee'],afternoon
+"Hey, can you bring my diabetes medicine.",2023-11-29 12:06:54,0.30300000000000005,0.4521,0.2449,"['diabetes', 'medicine']",afternoon
+Please bring me my coffee.,2023-11-30 15:45:29,0.0119,0.4317,0.5564,['coffee'],afternoon
+Where are my keys!!! Get them to me fast. 😡😡😡😡,2023-11-30 15:45:43,0.0693,0.0726,0.8581,['keys'],afternoon
+John slipped from the staircase and hurt his head. Please call 911!,2023-11-30 15:46:03,0.0648,0.0413,0.8938,"['staircase', 'head']",afternoon
+"It's time for my diabetes medicine, can you please bring it to me.",2023-11-30 15:46:21,0.036199999999999996,0.6096,0.3542,"['time', 'diabetes', 'medicine']",afternoon
+"Hey, can I get a coffee? 😊😊😊",2023-11-30 15:48:48,0.8203,0.0813,0.09839999999999999,"['coffee', '😊']",afternoon
+I am so happy today! 😊😊😂,2023-12-01 16:25:33,0.9717,0.0113,0.0168,"['today', '😊']",afternoon

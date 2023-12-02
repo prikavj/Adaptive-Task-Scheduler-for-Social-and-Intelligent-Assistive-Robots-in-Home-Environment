@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Emoji Text Saver</title>
+
+<script>
+var baseUrlForStaticFiles = "{{ url_for('static', filename='') }}";
+document.addEventListener('DOMContentLoaded', (event) => {
+    function updateEmotion() {
+    fetch('/get_emotion', {
+        method: 'GET', // Assuming the server-side route is a GET request
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if(data.image_file) {
+            console.log('Emotion updated successfully!');
+            // Update the image source
+            var imgFile = data.image_file;
+            var imgElement = document.getElementById('emotionImage');
+            if (imgElement) {
+                imgElement.src = baseUrlForStaticFiles + imgFile;
+            }
+        } else {
+            console.error('Error updating emotion.');
+        }
+    })
+    .catch((error) => {
+        console.error('Error:', error);
+    });
+    }
+
+    // Poll for changes every 5 seconds
+    setInterval(updateEmotion, 5000);
+    
+
+    function addEmoji(emoji) {
+        var textArea = document.getElementById('user-text');
+        textArea.value += emoji;
+        textArea.focus(); // Bring focus back to the textarea
+    }
+
+    window.addEmoji = addEmoji; // Expose to window for HTML onclick()
+
+    function saveText() {
+        var userInput = document.getElementById('user-text').value;
+        var currentTime = new Date().toISOString(); // Get current time in ISO format
+
+        fetch('/save-text', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ text: userInput, time: currentTime })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if(data.success) {
+                alert('Text saved successfully!');
+                document.getElementById('user-text').value = ''; // clear the input
+            } else {
+                alert('Error saving text.');
+            }
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+        });
+    }
+
+
+    window.saveText = saveText; // Expose to window for HTML onclick()
+
+    // Clock function to update time
+    function updateClock() {
+        var now = new Date(); // current date
+        var hours = now.getHours() < 10 ? '0' + now.getHours() : now.getHours();
+        var minutes = now.getMinutes() < 10 ? '0' + now.getMinutes() : now.getMinutes();
+        var seconds = now.getSeconds() < 10 ? '0' + now.getSeconds() : now.getSeconds();
+        var timeString = hours + ':' + minutes + ':' + seconds;
+
+        document.getElementById('clock').textContent = timeString;
+    }
+
+    function fetchCommands() {
+        fetch('/get-commands')
+        .then(response => response.json())
+        .then(data => {
+            displayCommands(data.commands);
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+        });
+    }
+
+
+    function getPriorityColor(priority) {
+        if(priority >= 0.8) {
+            return '#ff9999'; // Red-ish for high priority
+        } else if(priority >= 0.5) {
+            return '#ffcc99'; // Orange for medium priority
+        } else {
+            return '#ffff99'; // Yellow-ish for low priority
+        }
+    }
+    function updateTaskStatus() {
+        fetch('/update-task', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if(data.success) {
+                console.log('Task status updated successfully!');
+                fetchCommands(); // Refresh the task list after updating
+            } else {
+                console.error('Error updating task status.');
+            }
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+        });
+    }
+
+    function displayCommands(commands) {
+        // Sort commands by priority
+        commands.sort((a, b) => b.priority - a.priority);
+
+        const waitingList = document.getElementById('waiting-list');
+        const runningList = document.getElementById('running-list');
+        // Clear the lists first
+        waitingList.innerHTML = '';
+        runningList.innerHTML = '';
+
+        commands.forEach(cmd => {
+            const commandItem = document.createElement('div');
+            commandItem.classList.add('command-item');
+            commandItem.style.backgroundColor = getPriorityColor(cmd.priority);
+            commandItem.innerHTML = `<strong>${cmd.command}</strong> - Priority: ${cmd.priority} - Status: ${cmd.status} - Time Remaining: ${cmd.execution_time_remaining}s`;
+            
+            if (cmd.status === 'waiting') {
+                waitingList.appendChild(commandItem);
+            } else if (cmd.status === 'running') {
+                const progressBar = document.createElement('div');
+                progressBar.classList.add('progress-bar');
+                progressBar.style.width = `${(cmd.execution_time_remaining / cmd.total_execution_time_needed) * 100}%`;
+
+                commandItem.appendChild(progressBar);
+                runningList.appendChild(commandItem);
+            }
+        });
+    }
+
+    let emotionWeights = {
+        "happy" : 50,
+        "neutral" : 50,
+        "sad" : 50
+    };
+
+    function updateEmotionWeight(emotion, weight) {
+        emotionWeights[emotion] = parseInt(weight);
+        sendEmotionWeights();
+    }
+
+    function sendEmotionWeights() {
+        fetch('/update-emotion-weights', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(emotionWeights)
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+        });
+    }
+
+    function fetchAndUpdateEmotionWeights() {
+        fetch('/get-emotion-weights')
+            .then(response => response.json())
+            .then(data => {
+                if (data.happy !== undefined) {
+                    document.getElementById('slider-happy').value = data.happy;
+                }
+                if (data.sad !== undefined) {
+                    document.getElementById('slider-sad').value = data.sad;
+                }
+                if (data.neutral !== undefined) {
+                    document.getElementById('slider-neutral').value = data.neutral;
+                }
+            })
+            .catch(error => console.error('Error fetching emotion weights:', error));
+    }
+
+    // Fetch every second
+    setInterval(fetchAndUpdateEmotionWeights, 1000);
+
+    window.updateEmotionWeight = updateEmotionWeight;
+
+
+    fetchCommands();
+    updateClock(); // Initial call to display clock immediately
+    // Add a function to periodically refresh the command list
+    setInterval(fetchCommands, 1000); // Refresh every second
+    setInterval(updateClock, 1000); // Update the time every second
+    setInterval(updateTaskStatus, 1000); // Update the task status every second
+    
+});
+</script>
+<style>
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 20px;
+    color: #333;
+    position: relative; /* Added to position the clock */
+}
+
+h1 {
+    color: #5a5a5a;
+}
+
+/* Improved styles for emoji buttons */
+.emoji-button {
+    font-size: 24px;
+    border: 1px solid #ddd;
+    background-color: #fff;
+    cursor: pointer;
+    padding: 10px;
+    border-radius: 5px;
+    margin: 5px;
+    transition: background-color 0.3s, transform 0.3s;
+}
+
+.emoji-button:hover {
+    background-color: #e0e0e0;
+    transform: scale(1.1);
+}
+
+textarea {
+    width: calc(100% - 22px);
+    padding: 10px;
+    margin-top: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    resize: vertical;
+}
+
+/* Style for save button */
+button {
+    padding: 10px 20px;
+    background-color: #5cb85c;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    margin-top: 10px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    background-color: #4cae4c;
+}
+
+/* Styles for the clock */
+#clock {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background-color: #fff;
+    padding: 5px 10px;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+    font-family: 'Arial', sans-serif;
+    font-size: 16px;
+    color: #333;
+    box-shadow: 0px 0px 5px rgba(0,0,0,0.2);
+}
+/* Style for commands display */
+.command-item {
+    margin: 5px 0;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+    box-shadow: 0px 0px 5px rgba(0,0,0,0.2);
+    transition: background-color 0.3s;
+}
+/* Main container for the layout */
+.main-container {
+    display: flex;
+    justify-content: space-between;
+}
+
+/* Task list and emotion sliders container */
+.task-list-container {
+    width: 78%; /* Adjust the width as needed */
+    margin: 1%; /* Optional, for spacing */
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+    box-shadow: 0px 0px 5px rgba(0,0,0,0.2);
+    background-color: #f9f9f9; /* Light grey background */
+}
+.emotion-sliders-container {
+    width: 18%; /* Adjust the width as needed */
+    margin: 1%; /* Optional, for spacing */
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+    box-shadow: 0px 0px 5px rgba(0,0,0,0.2);
+    background-color: #f9f9f9; /* Light grey background */
+}
+.task-list h2 {
+    background-color: #f9f9f9; /* Light grey background */
+    border: 1px solid #ccc; /* Light grey border */
+    border-radius: 5px; /* Rounded corners */
+    padding: 10px; /* Space inside the box */
+    margin-bottom: 20px; /* Space between the box and the list below it */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Optional: adds a subtle shadow */
+    text-align: center; /* Center the text */
+}
+.emotion-slider-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.emotion-label {
+    white-space: nowrap; /* Prevents the label from wrapping */
+}
+
+.emotion-slider {
+    flex-grow: 1; /* Slider takes the remaining space */
+}
+
+/* Make sure the lists fill the width of their container */
+.task-list {
+    width: 100%;
+}
+
+.progress-bar {
+    height: 10px;
+    background-color: green;
+    border-radius: 5px;
+}
+
+
+</style>
+</head>
+<body>
+<!-- Time display -->
+<div id="clock"></div>
+<h1>Enter Your Instruction with Emojis</h1>
+<!-- Buttons for emoji input -->
+<div>
+    <button class="emoji-button" onclick="addEmoji('😀')">😀</button>
+    <button class="emoji-button" onclick="addEmoji('😂')">😂</button>
+    <button class="emoji-button" onclick="addEmoji('😅')">😅</button>
+    <button class="emoji-button" onclick="addEmoji('😊')">😊</button>
+    <button class="emoji-button" onclick="addEmoji('😍')">😍</button>
+    <button class="emoji-button" onclick="addEmoji('🤔')">🤔</button>
+    <button class="emoji-button" onclick="addEmoji('😔')">😔</button>
+    <button class="emoji-button" onclick="addEmoji('😢')">😢</button>
+    <button class="emoji-button" onclick="addEmoji('😠')">😠</button>
+    <button class="emoji-button" onclick="addEmoji('😡')">😡</button>
+    <button class="emoji-button" onclick="addEmoji('😡')">😡</button>
+    <button class="emoji-button" onclick="addEmoji('🤢')">🤢</button> 
+    <button class="emoji-button" onclick="addEmoji('😐')">😐</button> 
+    <button class="emoji-button" onclick="addEmoji('😮')">😮</button> 
+    <button class="emoji-button" onclick="addEmoji('😨')">😨</button>
+</div>
+<textarea id="user-text" rows="4"></textarea>
+<br>
+<button onclick="saveText()">Save Text</button>
+
+<div class="main-container">
+
+    <h1>Adaptive Task Scheduler for Social and Intelligent Assistive Robots in Home Environment</h1>
+    <img id="emotionImage" src={{ url_for('static', filename=image_file) }} width="600" height="600">
+
+    <div class="task-list-container">
+        <h2>Running Task</h2>
+        <div id="running-list" class="task-list">
+            
+            <!-- Running task will be appended here -->
+        </div>
+        
+        <h2>Waiting Tasks</h2>
+        <div id="waiting-list" class="task-list">
+            
+            <!-- Waiting tasks will be appended here -->
+        </div>
+    </div>
+    <div class="emotion-sliders-container">
+        <h2>Emotion Weights</h2>
+        <div class="emotion-slider-row">
+            <span class="emotion-label">Happy:</span>
+            <input type="range" min="0" max="100" value="50" class="emotion-slider" id="slider-happy" onchange="updateEmotionWeight('happy', this.value)">
+        </div>
+        <div class="emotion-slider-row">
+            <span class="emotion-label">Sad:</span>
+            <input type="range" min="0" max="100" value="50" class="emotion-slider" id="slider-sad" onchange="updateEmotionWeight('sad', this.value)">
+        </div>
+        <div class="emotion-slider-row">
+            <span class="emotion-label">Neutral:</span>
+            <input type="range" min="0" max="100" value="50" class="emotion-slider" id="slider-neutral" onchange="updateEmotionWeight('neutral', this.value)">
+        </div>
+              
+    </div>
+    
+</div>
+</body>
+</html>
