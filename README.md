@@ -3,30 +3,6 @@
 ## Overview
 This project, developed by Priyank Avijeet and Vinayak Gajendra Panchal, focuses on integrating Social and Intelligent Assistive Robots into the home automation landscape. The core objective is to enhance task scheduling in a way that mirrors human behavior in prioritizing daily activities based on various factors such as emotional context, health sensitivity, and urgency. The system employs advanced Natural Language Processing (NLP) and Transformer models, along with a self-adaptive software architecture using the MAPEK loop, to dynamically adjust task prioritization.
 
-## Repository Structure
-
-
-code/
-│
-├── adapt_emotion_weights.py # Script for adjusting emotion preference weights
-├── app.py # Main application script
-├── data/ # Directory containing data files
-│   ├── commands.csv # CSV file with user commands
-│   ├── commands.json # JSON file with user commands
-│   ├── emotion_weights.json # JSON file with emotion weights data
-│   └── emotional_state.json # JSON file with emotional state data
-├── health_text_classification.py # Script for health-related text classification
-├── libs.py # Library functions used across the project
-├── sentiment_analyser.py # Script for sentiment analysis
-├── static/ # Static files for the web interface
-│   ├── robot_image_happy.png # Image of robot in a happy state
-│   ├── robot_image_neutral.png # Image of robot in a neutral state
-│   └── robot_image_sad.png # Image of robot in a sad state
-├── templates/ # HTML templates for the web interface
-│   └── index.html # Main HTML template
-└── update_emotional_state.py # Script for updating the robot's emotional state
-
-
 ## Key Features
 - **Task Scheduling**: Prioritizes tasks based on a unique algorithm considering emotional context, health sensitivity, and temporal aspects.
 - **NLP and Transformer Models**: Extracts and interprets task-related information from user inputs.
